@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        header {
+            position: fixed;
+            background-color: rgb(236, 245, 234);
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            font-size: 28px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family:'Franklin Gothic Light', 'Arial Narrow', Arial, sans-serif;
+            z-index: 10;
+        }
+
+        .redirectory {
+            border: none;
+            background: none;
+            position: fixed;
+            right: 0;
+            top: 50px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        .redirectory:hover {
+            color: blue;
+            text-decoration: underline;
+        }
+
+        main {
+            margin: 94px 18px 50px 18px ;
+        }
+
+        .subheader {
+            font-size: 20px;
+            font-weight: 600;
+            padding-bottom: 12px;
+
+        }
+
+        .binCapacities {
+            margin-top: 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            column-gap: 12px;
+        }
+
+        .binCapacity {
+            border-radius: 14px;
+            box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.2);
+            transition: box-shadow 0.15s, opacity 0.15s;
+        }
+
+        .binCapacity:hover {
+            box-shadow: 2px 2px 18px rgba(0, 0, 0, 0.4);
+        }
+
+        .binCapacity:active {
+            opacity: 0.7;
+        }
+
+        .columnHeading {
+            font-size: 18px;
+            font-weight: 400;
+            margin-bottom: 8px;
+            padding-left: 22px;
+
+        }
+
+        .fullness {
+            font-size: 12px;
+            margin-top: 0px;
+            padding-left: 22px;
+
+        }
+
+        /* This is for the progressbar*/
+        .progress-circle {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background:
+                conic-gradient(
+                    #3ddc50 calc(var(--percent) * 1%),
+                    #e6e9ee 0
+                );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 14px auto;
+
+            /* Depth */
+            box-shadow:
+                0 8px 18px rgba(0, 0, 0, 0.12),
+                inset 0 0 12px rgba(255, 255, 255, 0.6);
+
+            transition: all 0.6s ease;
+            margin-bottom: 32px;
+        }
+
+        .progress-circle::before {
+            content: "";
+            width: 200px;
+            height: 200px;
+            background: #ffffff;
+            border-radius: 50%;
+            position: absolute;
+
+            box-shadow:
+                inset 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .progress-circle span {
+            position: relative;
+            font-size: 22px;
+            font-weight: 600;
+            color: #2c2c2c;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 1200px) and (min-width: 1050px) {
+            .progress-circle {
+                width: 250px;
+                height: 250px;
+            }
+
+            .progress-circle::before {
+                width: 180px;
+                height: 180px;
+            }
+        }
+
+        @media (max-width: 1050px) {
+            .progress-circle {
+                width: 200px;
+                height: 200px;
+            }
+
+            .progress-circle::before {
+                width: 140px;
+                height: 140px;
+            }
+        }
+
+
+        @media (max-width: 750px) {
+            .progress-circle {
+                width: 150px;
+                height: 150px;
+            }
+
+            .progress-circle::before {
+                width: 100px;
+                height: 100px;
+            }
+        }
+        
+
+        @media (max-width: 600px) {
+            .binCapacities {
+                grid-template-columns: 1fr;
+                row-gap: 32px;
+            }
+
+            .progress-circle {
+                width: 250px;
+                height: 250px;
+            }
+
+            .progress-circle::before {
+                width: 180px;
+                height: 180px;
+            }
+        }
+        
+
+        /* End of progressbar */
+
+        footer {
+            display: flex;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        /* Leaderboard */
+        .leaderboardNumbers {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 24px;
+            box-shadow: 2px 2px 12px rgba(7, 91, 7, 0.2);
+            transition: box-shadow 0.15s;
+            margin: 18px auto;
+            max-width: 800px;
+        }
+
+        .leaderboardNumbers:hover {
+            box-shadow: 2px 2px 12px rgba(7, 91, 7, 0.4);
+        }
+
+        .leaderboardNumbers p {
+            display: inline;
+        }
+
+        .placing {
+            width: 40px;
+            text-align: center;
+            font-weight: 500;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <p>
+            Smart Recycling Bin            
+        </p>
+        <button class="redirectory">
+            to leaderboard page
+        </button>
+    </header>
+    <main>
+    </main>
+    <footer>
+        By Phang Chun Hoe, Dennis, Hong Bing and Piyush
+    </footer>
+
+    <script>
+        let plasticCapacity = 60;
+        let paperCapacity = 10;
+        let metalCapacity = 59;
+        let viewPage = false; // true -> LeaderboardPage; false -> Bin Capacity Page
+        let customerData = [
+            {
+                'uid': 'wefinwef',
+                'name': 'John',
+                'contributions': 12,
+            },
+
+            {
+                'uid': 'sdoiun',
+                'contributions': 43
+            },
+
+        ]
+
+        const main = document.getElementsByTagName('main')[0];
+        
+        renderPage();
+
+        function renderPage() {
+
+            if (viewPage) {
+                main.innerHTML = 
+                `
+                    <section class="subheader">
+                        Leaderboard 
+                    </section>
+                `;
+
+                customerData.sort((a, b) => b.contributions - a.contributions)
+
+                customerData.forEach((customer, index) => {
+                    main.innerHTML += `
+                        <div class="leaderboardNumbers">
+                            <p class="placing">${index + 1}</p>
+                            <p> ${customer.name || customer.uid} has prevented ${customer.contributions}kg of carbon dioxide from being released!</p> 
+                        </div>
+                    `
+                })
+            }
+
+            else {
+                main.innerHTML = 
+                `
+                    <section class="subheader">
+                        Bin Capacity 
+                    </section>
+
+                    <section class="binCapacities">
+
+                        <div class="binCapacity">
+                            <p class="columnHeading">
+                                Plastic
+                            </p>
+
+                            <p class="fullness">
+                                ${plasticCapacity}% Full
+                            </p>
+
+                            <div class="progress-circle" style="--percent:${plasticCapacity}">
+                                <span>${plasticCapacity}%</span>
+                            </div>
+                        </div>
+
+                        <div class="binCapacity">
+                            <p class="columnHeading">
+                                Paper
+                            </p>
+
+                            <p class="fullness">
+                                ${paperCapacity}% Full
+                            </p>
+
+                            <div class="progress-circle" style="--percent:${paperCapacity}">
+                                <span>${paperCapacity}%</span>
+                            </div>
+                        </div>
+
+                        <div class="binCapacity">
+                            <p class="columnHeading">
+                                Metal
+                            </p>
+
+                            <p class="fullness">
+                                ${metalCapacity}% Full
+                            </p>
+
+                            <div class="progress-circle" style="--percent:${metalCapacity}">
+                                <span>${metalCapacity}%</span>
+                            </div>
+                        </div>
+                    </section>
+
+                `;
+            }
+
+        }
+        const redirectoryButton = document.getElementsByClassName('redirectory')[0];
+
+        redirectoryButton.addEventListener('click', () => {
+            viewPage = !viewPage;
+            if (viewPage) {
+                redirectoryButton.innerText = 'to bin capacity page';
+                renderPage();
+            } 
+            else {
+                redirectoryButton.innerText = 'to leaderboard page';
+                renderPage();
+
+            }
+        })
+    </script>
+</body>
+</html>
