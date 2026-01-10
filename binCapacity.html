@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://phangchunhoe.github.io/smart_recycling_bin/binCapacity.css">
+</head>
+<body>
+    <header>
+        <p>
+            Smart Recycling Bin            
+        </p>
+        <button class="redirectory">
+            to leaderboard page
+        </button>
+    </header>
+    <main>
+    </main>
+    <footer>
+        By Phang Chun Hoe, Dennis, Hong Bing and Piyush
+    </footer>
+
+    <script>
+        let plasticCapacity = 60;
+        let paperCapacity = 10;
+        let metalCapacity = 59;
+        let viewPage = false; // true -> LeaderboardPage; false -> Bin Capacity Page
+        let customerData = [
+            {
+                'uid': 'wefinwef',
+                'name': 'John',
+                'contributions': 12,
+            },
+
+            {
+                'uid': 'sdoiun',
+                'contributions': 43
+            },
+
+        ]
+
+        const main = document.getElementsByTagName('main')[0];
+        
+        renderPage();
+
+        function renderPage() {
+
+            if (viewPage) {
+
+                customerData.sort((a, b) => b.contributions - a.contributions)
+
+                main.innerHTML = 
+                `
+                    <section class="subheader">
+                        Leaderboard 
+                    </section>
+
+                    ${customerData.map((c, i) => 
+                    `
+                        <div class="leaderboardNumbers">
+                            <p class="placing"> ${i + 1} </p>
+                            <p>${c.name ?? c.uid} has prevented ${c.contributions}kg of carbon dioxide from being released! </p>
+                        </div>
+                        
+                    `).join("")}
+                `;
+
+
+            }
+
+            else {
+                main.innerHTML = 
+                `
+                    <section class="subheader">
+                        Bin Capacity 
+                    </section>
+
+                    <section class="binCapacities">
+
+                        <div class="binCapacity">
+                            <p class="columnHeading">
+                                Plastic
+                            </p>
+
+                            <p class="fullness">
+                                ${plasticCapacity}% Full
+                            </p>
+
+                            <div class="progress-circle" style="--percent:${plasticCapacity}">
+                                <span>${plasticCapacity}%</span>
+                            </div>
+                        </div>
+
+                        <div class="binCapacity">
+                            <p class="columnHeading">
+                                Paper
+                            </p>
+
+                            <p class="fullness">
+                                ${paperCapacity}% Full
+                            </p>
+
+                            <div class="progress-circle" style="--percent:${paperCapacity}">
+                                <span>${paperCapacity}%</span>
+                            </div>
+                        </div>
+
+                        <div class="binCapacity">
+                            <p class="columnHeading">
+                                Metal
+                            </p>
+
+                            <p class="fullness">
+                                ${metalCapacity}% Full
+                            </p>
+
+                            <div class="progress-circle" style="--percent:${metalCapacity}">
+                                <span>${metalCapacity}%</span>
+                            </div>
+                        </div>
+                    </section>
+
+                `;
+            }
+
+        }
+        const redirectoryButton = document.getElementsByClassName('redirectory')[0];
+
+        redirectoryButton.addEventListener('click', () => {
+            viewPage = !viewPage;
+            redirectoryButton.innerText = viewPage ? 'to bin capacity page' : 'to leaderboard page';
+            renderPage();
+        })
+    </script>
+</body>
+</html>
