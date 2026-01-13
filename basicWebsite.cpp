@@ -1,8 +1,26 @@
-/* LedBlinky
- * mbed Microcontroller Library
- * Copyright (c) 2019 ARM Limited
- * SPDX-License-Identifier: Apache-2.0
- */
+/* 
+
+Things to change when you are changing the html:
+
+1. Content-Length is already automatically calculated,
+   so you do not need to change anything for it 
+
+2. You many need to change the buffer size, and the 
+   current limits may not be enough
+   -> char payloadBuf[1024]
+   * take note that that payloadBuf >= http headers + html;
+   i.e., html max = 900 bytes
+   
+   if headers > 900 bytes, snprintf() will truncate,
+   browser will show 'ERR_CONTENT_LENGTH_MISMATCH'
+
+   THEREFORE, U MUST DO: char payloadBuf[2048]
+
+
+*/
+
+
+
 #undef __ARM_FP
 
 
@@ -11,14 +29,14 @@
 
 #undef __ARM_FP
 
-// ===== UART =====
+// ===== UART Pins =====
 #define ESP_TX PC_10
 #define ESP_RX PC_11
 
-BufferedSerial esp(ESP_TX, ESP_RX, 115200);
-BufferedSerial pc(USBTX, USBRX, 115200);
+BufferedSerial esp(ESP_TX, ESP_RX, 115200); // communications with esp01
+BufferedSerial pc(USBTX, USBRX, 115200); // usb serial console (for debugging)
 
-FileHandle *mbed_override_console() { return &pc; }
+FileHandle *mbed_override_console() { return &pc; } // displays 
 
 // ===== BUFFERS =====
 #define RX_BUF 1024
@@ -31,13 +49,15 @@ char txBuf[TX_BUF];
 const char WIFI_SSID[] = "Hi";
 const char WIFI_PASS[] = "PHANG9940h";
 
-// ====== CONFIGURATION FOR ACCUMULATOR ==========
+// ====== ACCUMULATOR BUFFER ==========
 #define ACC_BUF 4096
 static char acc[ACC_BUF];
 static int acc_len = 0;
 
 // ================= UTILITIES =================
 
+// Clears old junk from the ESP;
+// Prevents previous responses from confusing the next command
 void flush_esp()
 {
     while (esp.readable()) {
@@ -45,6 +65,9 @@ void flush_esp()
     }
 }
 
+// wait for ESP confirmantion (sync stm32 to esp)
+// for synchronous code; only after timeout it moves on
+// waits for esp output and prints to console
 bool wait_for(const char *token, int timeout_ms = 5000)
 {
     int elapsed = 0;
@@ -63,6 +86,8 @@ bool wait_for(const char *token, int timeout_ms = 5000)
     return false;
 }
 
+// send AT commands, prints to pc and wait for 'OK' response
+// send_cmd('command', 'reply to expect', 'timeout');
 void send_cmd(const char *cmd, const char *expect = "OK", int delay_ms = 2000)
 {
     flush_esp();
@@ -77,9 +102,9 @@ void setup_wifi()
 {
     printf("\r\n--- ESP SETUP START ---\r\n");
 
-    send_cmd("AT+RST\r\n", "ready", 8000);
-    send_cmd("AT\r\n", "OK");
-    send_cmd("AT+CWMODE=1\r\n", "OK");
+    send_cmd("AT+RST\r\n", "ready", 8000); // resets esp
+    send_cmd("AT\r\n", "OK"); // test communication
+    send_cmd("AT+CWMODE=1\r\n", "OK"); // mode 1 = connect to router
     
     // ------ Connect to Wifi -------
     snprintf(txBuf, sizeof(txBuf),
@@ -109,6 +134,7 @@ void setup_wifi()
 // improved send_http: robustly does CIPSEND -> payload -> wait for SEND OK -> close
 void send_http(int conn_id)
 {
+    // edits what the browser displays
     const char html[] =
         "<!DOCTYPE html>"
         "<html><head><title>STM32</title></head>"
@@ -117,6 +143,8 @@ void send_http(int conn_id)
         "</body></html>";
 
     // build full HTTP response into payloadBuf
+    // length must be properly modified
+    // to ensure that http has correct headers, length etc
     char payloadBuf[1024];
     int payloadLen = snprintf(payloadBuf, sizeof(payloadBuf),
         "HTTP/1.1 200 OK\r\n"
@@ -167,7 +195,6 @@ void send_http(int conn_id)
 }
 
 // ================= MAIN =================
-// ---------- Configuration for accumulator ----------
 int main()
 {
     printf("\r\nSTM32 ESP Web Server\r\n");
@@ -196,7 +223,7 @@ int main()
                 pc.write(rxBuf, n);
             }
         } else {
-            thread_sleep_for(5);
+            thread_sleep_for(50);
             continue;
         }
 
@@ -227,6 +254,7 @@ int main()
                 pc.write("Failed to parse conn_id in +IPD header\r\n", 44);
                 // remove up to colon to recover
                 int removeBytes = (colon + 1) - acc;
+                // note thet the memmove command is very memory intensive
                 memmove(acc, acc + removeBytes, acc_len - removeBytes);
                 acc_len -= removeBytes;
                 acc[acc_len] = '\0';
