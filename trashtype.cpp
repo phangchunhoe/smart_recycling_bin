@@ -25,7 +25,7 @@ int trashtype()
     int type = 0;
    //1:Metal 2:Paper 3:Plastic
     while(button2.read()==1);
-    printf("nigger");
+
     while (type==0)
     {
         if(button.read()==0){
