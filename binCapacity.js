@@ -19,7 +19,7 @@ function startMusic() {
 
 function startMusicFadeIn() {
     if (!bgMusic) {
-        bgMusic = new Audio("./audio/game_music.mp3"); // your file
+        bgMusic = new Audio("https://phangchunhoe.github.io/smart_recycling_bin/audio/game_music.mp3"); // your file
         bgMusic.loop = true;
     }
 
@@ -156,7 +156,9 @@ function showCodePopup() {
             console.log("Code correct! Starting quiz...");
             overlay.remove();
             startMusicFadeIn(); 
-            startEcoQuiz();
+            setTimeout(() => {
+                startEcoQuiz();
+            }, 120);
         } else {
             console.log("Code incorrect");
             document.getElementById("errorMsg").classList.remove("hidden");
