@@ -320,7 +320,7 @@ function showResults() {
 
                             <!-- FRONT -->
                             <div class="voucher-face voucher-front flex flex-col items-center justify-center gap-4">
-                                <img src="./images/ntuc_logo_noBackground.png"
+                                <img src="https://phangchunhoe.github.io/smart_recycling_bin/images/ntuc_logo_noBackground.png"
                                     class="w-32 object-contain"
                                     alt="FairPrice Logo">
 
@@ -339,11 +339,11 @@ function showResults() {
 
                             <!-- BACK -->
                             <div class="voucher-face voucher-back flex flex-col items-center justify-center gap-3">
-                                <img src="./images/ntuc_logo_noBackground.png"
+                                <img src="https://phangchunhoe.github.io/smart_recycling_bin/images/ntuc_logo_noBackground.png"
                                     class="w-24 object-contain"
                                     alt="FairPrice Logo">
 
-                                <img src="./images/ntuc_qr.svg"
+                                <img src="https://phangchunhoe.github.io/smart_recycling_bin/images/ntuc_qr.svg"
                                     class="w-24 h-24 rounded-xl bg-white p-2"
                                     alt="Voucher QR Code">
 
