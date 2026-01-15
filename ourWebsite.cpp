@@ -39,20 +39,22 @@ BufferedSerial pc(USBTX, USBRX, 115200); // usb serial console (for debugging)
 FileHandle *mbed_override_console() { return &pc; } // displays 
 
 // ===== BUFFERS =====
-#define RX_BUF 1024
-#define TX_BUF 1024
+#define RX_BUF 512
+#define TX_BUF 512
 
 char rxBuf[RX_BUF];
 char txBuf[TX_BUF];
 
 // ===== WIFI CREDENTIALS =====
-const char WIFI_SSID[] = "Hi";
-const char WIFI_PASS[] = "PHANG9940h";
+const char WIFI_SSID[] = "Donald_2.4G";
+const char WIFI_PASS[] = "19101972";
 
 // ====== ACCUMULATOR BUFFER ==========
 #define ACC_BUF 4096
 static char acc[ACC_BUF];
 static int acc_len = 0;
+static int acc_start = 0;
+
 
 // ================= UTILITIES =================
 
@@ -135,30 +137,49 @@ void setup_wifi()
 void send_http(int conn_id)
 {
     // edits what the browser displays
-    const char html[] =
-        "<!DOCTYPE html><meta charset='UTF-8'>"
+    // feel free to remove static if you need to
+    static const char html[] =
+        "<!DOCTYPE html>"
         "<html><head><title>STM32</title>"
         "<link rel='stylesheet' href='https://phangchunhoe.github.io/smart_recycling_bin/binCapacity.css'></head>"
         "<body>"
         "<header><p>Smart Recycling Bin</p>"
-        "<button class='redirectory'>to leaderboard page</button>"
-        "</header><main></main>"
+        "    <button class='ecocoin'>"
+        "        <img src='https://phangchunhoe.github.io/smart_recycling_bin/images/ecocoin_start.png'>"
+        "        <p class='tooltip'>collect ecocoins</p></button></header>"
+        "<main><section class='subheader'>Bin Capacity</section>"
+        "    <section class='binCapacities'><div class='binCapacity'>"
+        "            <p class='columnHeading'>Plastic</p>"
+        "            <p class='fullness'>10% Full</p>"
+        "            <div class='progress-circle' style='--percent:10'><span>10%</span></div></div>"
+        "        <div class='binCapacity'><p class='columnHeading'>Paper</p>"
+        "            <p class='fullness'>85% Full</p>"
+        "            <div class='progress-circle' style='--percent:85'><span>85%</span></div></div>"
+        "        <div class='binCapacity'><p class='columnHeading'>Metal</p>"
+        "            <p class='fullness'> 45% Full</p>"
+        "            <div class='progress-circle' style='--percent:45'><span>45%</span></div></div>"
+        "    </section></main>"
         "<footer>By Phang Chun Hoe, Dennis, Hong Bing and Piyush</footer>"
-        "<h1>Hello World from STM32 + ESP01</h1>"
-        "</body></html>";
+        "<script src='https://phangchunhoe.github.io/smart_recycling_bin/binCapacity.js'></script>"
 
+        "</body></html>";
     // build full HTTP response into payloadBuf
     // length must be properly modified
     // to ensure that http has correct headers, length etc
     char payloadBuf[4096];
+    int html_len = strlen(html);
+
     int payloadLen = snprintf(payloadBuf, sizeof(payloadBuf),
         "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/html\r\n"
+        "Content-Type: text/html; charset=UTF-8\r\n"
         "Content-Length: %d\r\n"
-        "Connection: close\r\n\r\n"
+        "Connection: close\r\n"
+        "\r\n"
         "%s",
-        (int)strlen(html), html);
-
+        html_len,
+        html
+    );
+    
     if (payloadLen <= 0 || payloadLen >= (int)sizeof(payloadBuf)) {
         pc.write("Payload build error\r\n", 21);
         return;
@@ -208,6 +229,12 @@ int main()
 
     while (true)
     {
+        thread_sleep_for(10);
+        // =============== HARDWARE LOGIC ===============
+
+
+        // =============== WEBSITE LOGIC ================
+
         // Read any available bytes from UART into a temp buffer
         if (esp.readable()) {
             int n = esp.read(rxBuf, sizeof(rxBuf) - 1);
@@ -234,7 +261,7 @@ int main()
 
         // Process all +IPD occurrences in accumulator
         while (true) {
-            char *p = strstr(acc, "+IPD,");
+            char *p = strstr(acc + acc_start, "+IPD,");
             if (!p) break; // nothing to do
 
             // Ensure we have the full header (find colon that ends header)
@@ -259,10 +286,18 @@ int main()
                 pc.write("Failed to parse conn_id in +IPD header\r\n", 44);
                 // remove up to colon to recover
                 int removeBytes = (colon + 1) - acc;
-                // note thet the memmove command is very memory intensive
-                memmove(acc, acc + removeBytes, acc_len - removeBytes);
-                acc_len -= removeBytes;
-                acc[acc_len] = '\0';
+
+                // Logical consume instead of memmove
+                acc_start += removeBytes;
+
+                // Compact only when necessary
+                if (acc_start > ACC_BUF / 2) {
+                    memmove(acc, acc + acc_start, acc_len - acc_start);
+                    acc_len -= acc_start;
+                    acc_start = 0;
+                    acc[acc_len] = '\0';
+                }
+
                 continue;
             }
             q = endptr + 1;
@@ -273,16 +308,22 @@ int main()
                 pc.write("Failed to parse data_len in +IPD header\r\n", 44);
                 // remove up to colon to recover
                 int removeBytes = (colon + 1) - acc;
-                memmove(acc, acc + removeBytes, acc_len - removeBytes);
-                acc_len -= removeBytes;
+                acc_start += removeBytes;
+
+                if (acc_start > ACC_BUF / 2) {
+                    memmove(acc, acc + acc_start, acc_len - acc_start);
+                    acc_len -= acc_start;
+                    acc_start = 0;
+                    acc[acc_len] = '\0';
+                }
                 acc[acc_len] = '\0';
                 continue;
             }
 
             // At this point we have conn_id and data_len.
             // Check if the full payload (data_len bytes) is present in the accumulator after the colon
-            int header_index = p - acc;          // start index of +IPD
-            int payload_start = (colon - acc) + 1; // index where payload starts
+            int header_index = p - acc;
+            int payload_start = (colon - acc) + 1;
             int bytes_available_after_header = acc_len - payload_start;
 
             if (bytes_available_after_header < data_len) {
@@ -307,16 +348,22 @@ int main()
             // Remove processed bytes (header + data_len bytes) from accumulator
             int removeBytes = payload_start + data_len;
             if (removeBytes < acc_len) {
-                memmove(acc, acc + removeBytes, acc_len - removeBytes);
-                acc_len -= removeBytes;
+                acc_start += removeBytes;
+
+
+            if (acc_start > ACC_BUF / 2) {
+                memmove(acc, acc + acc_start, acc_len - acc_start);
+                acc_len -= acc_start;
+                acc_start = 0;
                 acc[acc_len] = '\0';
-            } else {
+            }
+            else {
                 // exactly consumed everything
                 acc_len = 0;
                 acc[0] = '\0';
             }
 
-            // Continue loop to see if there are more +IPD messages buffered
+            }// Continue loop to see if there are more +IPD messages buffered
         } // end process +IPD occurrences
     }
 }
