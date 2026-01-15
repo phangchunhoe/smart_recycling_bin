@@ -29,7 +29,7 @@ float objDistance = 0;
 PwmOut Servomotor(PA_6);
 DigitalIn button_PC12(PC_12);
 DigitalIn button_PA15(PA_15);
-int main()
+void doorop()
 {
     Servomotor.period_ms(PERIOD_WIDTH_MS);
 

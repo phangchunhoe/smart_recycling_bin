@@ -4,7 +4,7 @@
 #include <cstring>
 #include "lcd.h"
 #include "trashtype.h"
-#include "trashlevel.h"
+
 
 
 #define WAIT_TIME_MS_0 500 
@@ -121,10 +121,6 @@ int trashlevel(){
         motor.suspend();
         return fullness;
     }
-
-
-
-
 
 
 
