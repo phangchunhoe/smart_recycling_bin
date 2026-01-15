@@ -215,3 +215,173 @@ footer {
     font-weight: 500;
     font-size: 20px;
 }
+
+.ecocoin {
+    position: absolute;
+    right: 5%;
+    height: 50px;
+    width: 50px;
+    border: none;
+    cursor: pointer;
+    border-radius: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(206, 243, 186);
+
+}
+
+.ecocoin img {
+    width: 35px;
+    transition: opacity 0.15s;
+}
+
+.ecocoin img:hover {
+    opacity: 0.7;
+}
+
+.ecocoin img:active {
+    opacity: 0.3;
+}
+
+
+.ecocoin p {
+    padding: 6px 12px;
+    color: white;
+    font-size: 10px;
+    position: absolute;
+    bottom: -50px;
+    left: -8px;
+    font-weight: 600;
+    background-color: rgb(95, 95, 95);
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.ecocoin:hover .tooltip {
+    opacity: 1;
+}
+
+.tooltip {
+    pointer-events: none;
+}
+
+/* for glassmorphism design*/
+:root {
+    --glass-bg: rgba(255, 255, 255, 0.45);   /* more white */
+    --glass-border: rgba(255, 255, 255, 0.6);
+    --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.12); /* lighter shadow */
+    --glass-blur: blur(20px);
+}
+
+.quiz-background {
+    background-image: url("./images/quiz_background.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    box-shadow: var(--glass-shadow);
+}
+
+.glass-option {
+    background: rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 18px;
+
+    transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.glass-option:hover {
+    background: rgba(255, 255, 255, 0.32);
+    transform: translateY(-2px);
+}
+
+.glass-option:active {
+    transform: scale(0.97);
+}
+
+.quiz-overlay {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.glass-progress {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(8px);
+}
+
+/* ===============================
+Voucher Celebration Styles
+================================ */
+
+.voucher-container {
+    perspective: 1200px;
+}
+
+.voucher-card {
+    width: 320px;
+    height: 200px;
+    position: relative;
+    border-radius: 24px;
+    perspective: 1200px;
+}
+
+.voucher-inner {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+.voucher-inner.flipped {
+    transform: rotateY(180deg);
+}
+
+.voucher-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.voucher-back {
+    transform: rotateY(180deg);
+}
+
+/* Confetti glow */
+.voucher-glow {
+    box-shadow:
+        0 0 30px rgba(34, 197, 94, 0.6),
+        0 0 80px rgba(34, 197, 94, 0.4);
+}
+
+/* Sparkle animation */
+@keyframes floatUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-float {
+    animation: floatUp 0.6s ease-out;
+}
+
+
+
+
