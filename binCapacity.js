@@ -6,7 +6,7 @@ let fadeInterval = null;
 
 function startMusic() {
     if (!bgMusic) {
-        bgMusic = new Audio("./audio/game_music.mp3"); // <-- your music file
+        bgMusic = new Audio("https://phangchunhoe.github.io/smart_recycling_bin/audio/game_music.mp3"); // <-- your music file
         bgMusic.loop = true;
         bgMusic.volume = 0.35;
     }
