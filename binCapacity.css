@@ -382,6 +382,33 @@ Voucher Celebration Styles
     animation: floatUp 0.6s ease-out;
 }
 
+/* ===============================
+   Results Page Typography
+================================ */
+
+.results-page {
+    color: #111; /* near-black, softer than pure black */
+}
+
+.results-page h1 {
+    color: #111;
+    font-size: 2.5rem;
+}
+
+.results-page p {
+    color: #222;
+    font-size: 1.05rem;
+}
+
+.results-page .voucher-face p {
+    color: #111;
+}
+
+.results-page button {
+    color: #fff; /* keep button text white */
+}
+
+
 
 
 

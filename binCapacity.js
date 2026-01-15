@@ -303,7 +303,7 @@ function showResults() {
     const voucherValue = score; // $1 per correct
 
     document.body.innerHTML = `
-        <div class="min-h-screen quiz-background">
+        <div class="min-h-screen quiz-background results-page">
             <div class="min-h-screen quiz-overlay flex flex-col items-center justify-center p-6 text-center">
 
                 <h1 class="text-4xl font-extrabold text-white mb-2 animate-float">
