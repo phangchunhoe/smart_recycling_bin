@@ -152,7 +152,7 @@ function showCodePopup() {
     document.getElementById("submitCode").onclick = () => {
         const code = document.getElementById("ecoCodeInput").value;
         console.log("Code entered:", code, "Length:", code.length);
-        if (code === "1234" || code === "8888" || code === "5601" || code === "8716") {
+        if (code === "1234" || code === "8888" || code === "5601" || code === "8716" || code == "1204" || code == "9940") {
             console.log("Code correct! Starting quiz...");
             overlay.remove();
             startMusicFadeIn(); 
