@@ -21,6 +21,7 @@ Things to change when you are changing the html:
 
 
 
+#include <cstdint>
 #undef __ARM_FP
 
 
@@ -29,6 +30,7 @@ Things to change when you are changing the html:
 
 #undef __ARM_FP
 
+using namespace std::chrono;
 // ===== UART Pins =====
 #define ESP_TX PC_10
 #define ESP_RX PC_11
@@ -45,15 +47,24 @@ FileHandle *mbed_override_console() { return &pc; } // displays
 char rxBuf[RX_BUF];
 char txBuf[TX_BUF];
 
+// ======  BIN CAPACITY VALUES (0-100) ========
+int plastic = 10;
+int paper = 85;
+int metal = 80;
+
+
 // ===== WIFI CREDENTIALS =====
-const char WIFI_SSID[] = "Donald_2.4G";
-const char WIFI_PASS[] = "19101972";
+const char WIFI_SSID[] = "Hi";
+const char WIFI_PASS[] = "PHANG9940h";
 
 // ====== ACCUMULATOR BUFFER ==========
 #define ACC_BUF 4096
 static char acc[ACC_BUF];
 static int acc_len = 0;
 static int acc_start = 0;
+
+// ============== COOLDOWN GUARD =================
+static bool conn_busy[5] = {false};
 
 
 // ================= UTILITIES =================
@@ -138,7 +149,16 @@ void send_http(int conn_id)
 {
     // edits what the browser displays
     // feel free to remove static if you need to
-    static const char html[] =
+    conn_busy[conn_id] = true;
+
+    char html[2048];
+
+    plastic = plastic < 0 ? 0 : (plastic > 100 ? 100 : plastic);
+    paper   = paper   < 0 ? 0 : (paper   > 100 ? 100 : paper);
+    metal   = metal   < 0 ? 0 : (metal   > 100 ? 100 : metal);
+
+
+    snprintf(html, sizeof(html),
         "<!DOCTYPE html>"
         "<html><head><title>STM32</title>"
         "<link rel='stylesheet' href='https://phangchunhoe.github.io/smart_recycling_bin/binCapacity.css'></head>"
@@ -150,19 +170,24 @@ void send_http(int conn_id)
         "<main><section class='subheader'>Bin Capacity</section>"
         "    <section class='binCapacities'><div class='binCapacity'>"
         "            <p class='columnHeading'>Plastic</p>"
-        "            <p class='fullness'>10% Full</p>"
-        "            <div class='progress-circle' style='--percent:10'><span>10%</span></div></div>"
+        "            <p class='fullness'>%d%% Full</p>"
+        "            <div class='progress-circle' style='--percent:%d%'><span>%d%%</span></div></div>"
         "        <div class='binCapacity'><p class='columnHeading'>Paper</p>"
-        "            <p class='fullness'>85% Full</p>"
-        "            <div class='progress-circle' style='--percent:85'><span>85%</span></div></div>"
+        "            <p class='fullness'>%d%% Full</p>"
+        "            <div class='progress-circle' style='--percent:%d%'><span>%d%%</span></div></div>"
         "        <div class='binCapacity'><p class='columnHeading'>Metal</p>"
-        "            <p class='fullness'> 45% Full</p>"
-        "            <div class='progress-circle' style='--percent:45'><span>45%</span></div></div>"
+        "            <p class='fullness'> %d%% Full</p>"
+        "            <div class='progress-circle' style='--percent:%d%'><span>%d%%</span></div></div>"
         "    </section></main>"
         "<footer>By Phang Chun Hoe, Dennis, Hong Bing and Piyush</footer>"
         "<script src='https://phangchunhoe.github.io/smart_recycling_bin/binCapacity.js'></script>"
 
-        "</body></html>";
+        "</body></html>",
+    plastic, plastic, plastic,
+    paper,   paper,   paper,
+    metal,   metal,   metal
+    );
+
     // build full HTTP response into payloadBuf
     // length must be properly modified
     // to ensure that http has correct headers, length etc
@@ -174,12 +199,14 @@ void send_http(int conn_id)
         "Content-Type: text/html; charset=UTF-8\r\n"
         "Content-Length: %d\r\n"
         "Connection: close\r\n"
+        "Cache-Control: no-store, no-cache, must-revalidate\r\n"
+        "Pragma: no-cache\r\n"
         "\r\n"
         "%s",
         html_len,
         html
     );
-    
+        
     if (payloadLen <= 0 || payloadLen >= (int)sizeof(payloadBuf)) {
         pc.write("Payload build error\r\n", 21);
         return;
@@ -197,10 +224,7 @@ void send_http(int conn_id)
     // wait for the '>' prompt (ESP ready to accept payload)
     if (!wait_for(">", 3000)) {
         pc.write("No '>' prompt from ESP\r\n", 26);
-        // attempt graceful close if possible
-        int closeLen = snprintf(cmdBuf, sizeof(cmdBuf), "AT+CIPCLOSE=%d\r\n", conn_id);
-        esp.write(cmdBuf, closeLen);
-        pc.write(cmdBuf, closeLen);
+        conn_busy[conn_id] = false;
         return;
     }
 
@@ -213,11 +237,12 @@ void send_http(int conn_id)
         pc.write("Warning: no SEND OK (or timed out)\r\n", 36);
     }
 
-    // close the connection and wait for OK
+    // close the connection and wait for CLOSED
     int closeLen = snprintf(cmdBuf, sizeof(cmdBuf), "AT+CIPCLOSE=%d\r\n", conn_id);
     esp.write(cmdBuf, closeLen);
     pc.write(cmdBuf, closeLen);
-    wait_for("OK", 2000);
+    wait_for("CLOSED", 3000);
+    conn_busy[conn_id] = false;
 }
 
 // ================= MAIN =================
@@ -280,6 +305,12 @@ int main()
 
             // parse conn_id
             conn_id = (int)strtol(q, &endptr, 10);
+
+            if (conn_id < 0 || conn_id >= 5) {
+                pc.write("Invalid conn_id\r\n", 17);
+                break;
+            }
+
             if (endptr == q || *endptr != ',') {
                 // parsing failed: remove this +IPD token to avoid infinite loop
                 // (possible corruption) or break to wait for more data
@@ -337,12 +368,12 @@ int main()
 
             // Avoid responding to favicon to reduce noise
             if (strstr(acc + payload_start, "favicon.ico")) {
-                // close this connection and remove processed bytes
-                int cmdLen = snprintf(txBuf, sizeof(txBuf), "AT+CIPCLOSE=%d\r\n", conn_id);
-                esp.write(txBuf, cmdLen);
-                pc.write(txBuf, cmdLen);
-            } else {
-                send_http(conn_id);
+                // Do nothing — browser will drop it
+            }
+            else {
+                if (!conn_busy[conn_id]) {
+                    send_http(conn_id);
+                }
             }
 
             // Remove processed bytes (header + data_len bytes) from accumulator
