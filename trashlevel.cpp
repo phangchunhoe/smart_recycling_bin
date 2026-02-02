@@ -10,27 +10,31 @@
 #define WAIT_TIME_MS_0 500 
 #define WAIT_TIME_MS_1 1500
 #define PERIOD_WIDTH_MS  20
-#define STOP_PULSE_US   2100
+#define STOP_PULSE_US   1500
 #define CW_PULSE_US     2400
 #define CCW_PULSE_US    500
 
 #define TRIG_PULSE_US   20
 #define TRIG_DELAY_MS   60
-
 PwmOut motor(PA_7);
-DigitalOut Trig(PC_1);//5
-DigitalIn Echo(PC_2);//6
-
+DigitalOut Trig(PC_6);
+DigitalIn Echo(PC_7);
+DigitalOut PC0(PC_0);
+DigitalOut PC1(PC_1);
+DigitalOut PC2(PC_2);
+DigitalOut PC3(PC_3);
+char binfull [21];
+char halffull [21];
+char binempty [21];
+char error1 [] ="error                   ";
 
 unsigned char key1, outChar1;
-char binfull [] ="Bin Full                    ";
-char halffull [] ="Bin is Half full                ";
-char binempty [] ="Bin is empty                   ";
-char error1 [] ="error                   ";
 
 int detectedtype;
 Timer echoTimer;
 int trashlevel(){
+    
+
     int fullness=0;
     int i=0;
     lcd_init();
@@ -40,10 +44,23 @@ int trashlevel(){
 
     if(detectedtype==1){
         motor.pulsewidth_us(CW_PULSE_US);
+        strncpy(binfull,"Metal Bin Full         ",21);
+        strncpy(halffull,"Metal Bin Half Full         ",21);
+        strncpy(binempty,"Metal Bin empty         ,",21);
         
-
+        
     }else if(detectedtype==3){
         motor.pulsewidth_us(CCW_PULSE_US);
+        strncpy(binfull,"Plastic Bin Full         ",21);
+        strncpy(halffull,"Plastic Bin Half Full         ",21);
+        strncpy(binempty,"Plastic Bin empty         ,",21);
+        
+        
+    }else if(detectedtype==2){
+        strncpy(binfull,"Paper Bin Full           ",21);
+        strncpy(halffull,"Paper Bin Half Full         ",21);
+        strncpy(binempty,"Paper Bin empty         ,",21);
+        
     }
     thread_sleep_for(WAIT_TIME_MS_1);
         Trig = 0;
@@ -73,20 +90,40 @@ int trashlevel(){
         float percentage=(distance/30)*100;
 
         // Control servo
-        if (percentage < 10)
+        if (percentage < 25)
         {
-            //ledbar code
+            PC0=1;
+            PC1=0;
+            PC2=0;
+            PC3=0;
             lcd_write_cmd(0x80);
             for (i = 0; i < 20; i++)		//for 20 char LCD module
             {
                 outChar1 = binempty[i];
                 lcd_write_data(outChar1); 	// write character data to LCD
             }
-        }
-        
-        else if(percentage>=25 && percentage<=75)
+        }else if(percentage>=25 && percentage<=50)
         {
             //led bar code
+            PC0=1;
+            PC1=1;
+            PC2=0;
+            PC3=0;
+            lcd_write_cmd(0x80);
+            for (i = 0; i < 20; i++)		//for 20 char LCD module
+            {
+                outChar1 = halffull[i];
+                lcd_write_data(outChar1); 	// write character data to LCD
+            }
+        }
+        
+        else if(percentage>=50 && percentage<=75)
+        {
+            //led bar code
+            PC0=1;
+            PC1=1;
+            PC2=1;
+            PC3=0;
             lcd_write_cmd(0x80);
             for (i = 0; i < 20; i++)		//for 20 char LCD module
             {
@@ -96,17 +133,22 @@ int trashlevel(){
         }
         else if(percentage >75 && percentage <=100){
             //ledbar code
+            PC0=1;
+            PC1=1;
+            PC2=1;
+            PC3=1;
             lcd_write_cmd(0x80);
             for (i = 0; i < 20; i++)		//for 20 char LCD module
             {
+            
                 outChar1 = binfull[i];
                 lcd_write_data(outChar1); 	// write character data to LCD
             }
 
            if(detectedtype==1){
-                motor.pulsewidth_us(CCW_PULSE_US);
+                motor.pulsewidth_us(STOP_PULSE_US);
             }else if(detectedtype==3){
-                motor.pulsewidth_us(CW_PULSE_US);
+                motor.pulsewidth_us(STOP_PULSE_US);
             
             }
             fullness=1;
@@ -118,7 +160,7 @@ int trashlevel(){
                 lcd_write_data(outChar1); 	// write character data to LCD
             }
         }
-        motor.suspend();
+        
         return fullness;
     }
 
