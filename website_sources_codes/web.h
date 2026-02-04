@@ -1,1 +1,1 @@
-void web(void);
+void web(double,double,double);

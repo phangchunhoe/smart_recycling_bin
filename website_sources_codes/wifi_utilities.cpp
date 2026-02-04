@@ -26,13 +26,13 @@ char rxBuf[RX_BUF];
 char txBuf[TX_BUF];
 
 // ====== BIN CAPACITY VALUES (0-100) ========
-int plastic = 10;
-int paper = 85;
-int metal = 80;
+int Plastic;
+int Paper;
+int Metal;
 
 // ===== WIFI CREDENTIALS =====
-const char WIFI_SSID[] = "Hi";
-const char WIFI_PASS[] = "PHANG9940h";
+const char WIFI_SSID[] = "ChongA34";
+const char WIFI_PASS[] = "18273645";
 
 // ====== ACCUMULATOR BUFFER ==========
 static char acc[ACC_BUF];
@@ -256,9 +256,9 @@ void send_http(int conn_id)
 
     char html[2048];
 
-    plastic = plastic < 0 ? 0 : (plastic > 100 ? 100 : plastic);
-    paper   = paper   < 0 ? 0 : (paper   > 100 ? 100 : paper);
-    metal   = metal   < 0 ? 0 : (metal   > 100 ? 100 : metal);
+    Plastic = Plastic < 0 ? 0 : (Plastic > 100 ? 100 : Plastic);
+    Paper   = Paper   < 0 ? 0 : (Paper   > 100 ? 100 : Paper);
+    Metal   = Metal   < 0 ? 0 : (Metal   > 100 ? 100 : Metal);
 
     snprintf(html, sizeof(html),
         "<!DOCTYPE html>"
@@ -284,9 +284,9 @@ void send_http(int conn_id)
         "<footer>By Phang Chun Hoe, Dennis, Hong Bing and Piyush</footer>"
         "<script src='https://phangchunhoe.github.io/smart_recycling_bin/binCapacity.js'></script>"
         "</body></html>",
-    plastic, plastic, plastic,
-    paper,   paper,   paper,
-    metal,   metal,   metal
+    Plastic, Plastic, Plastic,
+    Paper,   Paper,   Paper,
+    Metal,   Metal,   Metal
     );
 
     char payloadBuf[4096];

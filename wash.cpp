@@ -4,7 +4,7 @@
 
 DigitalOut pump(PB_0,1);
 DigitalOut led(PB_15);
-DigitalIn  button_PC (PC_12);
+
 
 
 void wash(){

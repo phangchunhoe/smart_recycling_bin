@@ -19,7 +19,7 @@ static int acc_len = 0;
 static int acc_start = 0;
 
 // ================= MAIN =================
-void web()
+void web(double papersh, double plasticsh, double metalsh)
 {
     printf("\r\nSTM32 ESP Web Server - Immediate Processing Version\r\n");
     int webwait=0;
@@ -37,14 +37,15 @@ void web()
     printf("\r\n*** Waiting for connections ***\r\n\r\n");
 
     // Main event loop
-    while (webwait<150)
+    while (webwait<5000)
     {
         thread_sleep_for(10);
         uint32_t now = rtos::Kernel::Clock::now().time_since_epoch().count() / 1000;
 
         // ---------------
-        
-
+            Paper=papersh;
+            Plastic=plasticsh;
+            Metal=metalsh;
         // --------------
 
         // Read incoming data from ESP

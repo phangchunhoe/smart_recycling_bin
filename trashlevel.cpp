@@ -85,12 +85,12 @@ int trashlevel(){
         // Distance in cm
         float distance = (echo_us * 0.0343f) / 2.0f;
 
-        printf("Distance: %.2f cm\n", distance);
+        printf("Distance for bin level: %.2f cm\n", distance);
 
         float percentage=(distance/30)*100;
 
         // Control servo
-        if (percentage < 25)
+        if (percentage >75 && percentage <=100)
         {
             PC0=1;
             PC1=0;
@@ -131,7 +131,7 @@ int trashlevel(){
                 lcd_write_data(outChar1); 	// write character data to LCD
             }
         }
-        else if(percentage >75 && percentage <=100){
+        else if(percentage<25){
             //ledbar code
             PC0=1;
             PC1=1;

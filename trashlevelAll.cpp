@@ -17,11 +17,17 @@ DigitalIn Echo1(PC_7);
 DigitalOut ledcheck(PB_15);
 
 Timer echoTimer1;
-int binfullcount=0;
+
+double paper;
+double plastic;
+double metal;
 
 
 int trashlevelAll(){
 int bincheck=0;
+int binfullcount=0;
+double rec;
+
     
 while(bincheck<3){
     printf("In TrashLevelAll");
@@ -54,10 +60,40 @@ while(bincheck<3){
 
         // Distance in cm
         float distance = (echo_us * 0.0343f) / 2.0f;
+        if(bincheck==0){
+            rec=30-distance;
+            printf("recpaper: %f",rec);
+            if(rec>=0){
+                paper=(rec/30)*100;
+                printf("paper: %f",paper);
+            }
+            else{
+                paper=0;
+            }
+        }
+        else if(bincheck==1){
+            rec=30-distance;
+            if(rec>=0){
+                plastic=(rec/30)*100;
+                printf("plastic: %f",plastic);
+            }
+            else{
+                plastic=0;
+            }
+        }else if(bincheck==2){
+            rec=30-distance;
+            if(rec>=0){
+                metal=(rec/30)*100;
+                printf("metal: %f",metal);
+            }
+            else{
+                metal=0;
+            }
+        }
+        printf("Distance is  %.2f cm \n",distance);
         if(distance<10){
             binfullcount+=1;
         }
-        printf("Distance is  %.2f cm \n",distance);
         thread_sleep_for(200);
         
         bincheck+=1;

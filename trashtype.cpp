@@ -11,7 +11,6 @@
 
 DigitalOut led1(LED1);
 DigitalIn IRSensor(PD_2);
-DigitalIn button2(PA_15);
 DigitalIn pinB9(PB_9);
 
 unsigned char key4, outChar4;

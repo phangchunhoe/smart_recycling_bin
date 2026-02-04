@@ -22,9 +22,9 @@ extern BufferedSerial esp;
 extern BufferedSerial pc;
 
 // ===== BIN CAPACITY VALUES =====
-extern int plastic;
-extern int paper;
-extern int metal;
+extern int Plastic;
+extern int Paper;
+extern int Metal;
 
 // ===== WIFI CREDENTIALS =====
 extern const char WIFI_SSID[];

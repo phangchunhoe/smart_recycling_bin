@@ -40,8 +40,6 @@ unsigned char key3, outChar3;
 // ===== Hardware =====
 PwmOut Servomotor(PA_6);
 PwmOut motorbin(PA_7);
-DigitalIn button_PC12(PC_12);
-DigitalIn button_PA15(PA_15);
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 PwmOut Servomotor1(PA_1);
 DigitalIn button_PB11(PB_11);
@@ -102,6 +100,7 @@ int main() {
       motorbin.pulsewidth_us(STOP_PULSE_US);
     }
     binfull = trashlevelAll();
+    printf("TrashlevelAll: %i",binfull);
     if (!(binfull == 3)) {
       if (Moretrash() == 1) {
         continue;
@@ -116,7 +115,7 @@ int main() {
     }
     thread_sleep_for(1000);
     
-    web();
+    web(paper,plastic,metal);
   }
 }
 
