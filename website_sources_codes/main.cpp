@@ -24,7 +24,7 @@ int main()
 
     // Setup WiFi and initialize connections
     setup_wifi();
-    
+
     for (int i = 0; i < 5; i++) {
         conn_busy[i] = false;
         conn_closed[i] = true;
