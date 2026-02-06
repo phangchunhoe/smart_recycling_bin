@@ -45,7 +45,7 @@ PwmOut Servomotor1(PA_1);
 DigitalIn button_PB11(PB_11);
 char pingen[] = "Pin: 1234                   ";
 void EXTI15_10_IRQHandler(void);
-void nigger() {
+int main() {
   int binfull = 0;
   int level = 0;
   lcd_init();
