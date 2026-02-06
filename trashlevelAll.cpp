@@ -12,27 +12,39 @@
 #define TRIG_DELAY_MS   60
 
 PwmOut motor1(PA_7);
-DigitalOut Trig1(PC_1);//5
-DigitalIn Echo1(PC_2);//6
+DigitalOut Trig1(PC_6);
+DigitalIn Echo1(PC_7);
+DigitalOut ledcheck(PB_15);
 
 Timer echoTimer1;
-int binfullcount=0;
-int bincheck=0;
 
-int main(){
-    
+double paper;
+double plastic;
+double metal;
+
+
+int trashlevelAll(){
+int bincheck=0;
+int binfullcount=0;
+double rec;
+
     
 while(bincheck<3){
-        if(bincheck==0){
-            motor1.period_ms(PERIOD_WIDTH_MS);
-            motor1.pulsewidth_us(CW_PULSE_US);
+    printf("In TrashLevelAll");
+    motor1.period_ms(PERIOD_WIDTH_MS);
+        
+        if(bincheck==1){
+            motor1.pulsewidth_us(2400);
+            printf("Bincheck is  %.2i \n",bincheck);
+        }else if(bincheck==2){
+            motor1.pulsewidth_us(500);
+            printf("Bincheck is  %.2i \n",bincheck);
         }
         Trig1 = 0;
         wait_us(2);
         Trig1 = 1;
         wait_us(TRIG_PULSE_US);
         Trig1 = 0;
-
         // Wait for echo to go HIGH
         while (Echo1 == 0);
 
@@ -48,21 +60,49 @@ while(bincheck<3){
 
         // Distance in cm
         float distance = (echo_us * 0.0343f) / 2.0f;
+        if(bincheck==0){
+            rec=30-distance;
+            printf("recpaper: %f",rec);
+            if(rec>=0){
+                paper=(rec/30)*100;
+                printf("paper: %f",paper);
+            }
+            else{
+                paper=0;
+            }
+        }
+        else if(bincheck==1){
+            rec=30-distance;
+            if(rec>=0){
+                plastic=(rec/30)*100;
+                printf("plastic: %f",plastic);
+            }
+            else{
+                plastic=0;
+            }
+        }else if(bincheck==2){
+            rec=30-distance;
+            if(rec>=0){
+                metal=(rec/30)*100;
+                printf("metal: %f",metal);
+            }
+            else{
+                metal=0;
+            }
+        }
+        printf("Distance is  %.2f cm \n",distance);
         if(distance<10){
             binfullcount+=1;
         }
-        printf("Distance is  %.2f cm \n",distance);
-        thread_sleep_for(1000);
-        if(bincheck==1){
-            motor1.pulsewidth_us(1000);
-            printf("Bincheck is  %.2i \n",bincheck);
-        }else if(bincheck==2){
-            motor1.pulsewidth_us(2000);
-            printf("Bincheck is  %.2i \n",bincheck);
-        }
+        thread_sleep_for(200);
+        
         bincheck+=1;
         
         thread_sleep_for(1000);
-    }
+
 }
+    return binfullcount;
+}
+
+
 

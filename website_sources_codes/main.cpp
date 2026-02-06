@@ -8,6 +8,7 @@
 
 #include "wifi.h"
 #include <cstring>
+//#include "doorop.h"
 
 using namespace std::chrono;
 
@@ -18,9 +19,10 @@ static int acc_len = 0;
 static int acc_start = 0;
 
 // ================= MAIN =================
-int main()
+void web(double papersh, double plasticsh, double metalsh)
 {
     printf("\r\nSTM32 ESP Web Server - Immediate Processing Version\r\n");
+    int webwait=0;
 
     // Setup WiFi and initialize connections
     setup_wifi();
@@ -35,10 +37,16 @@ int main()
     printf("\r\n*** Waiting for connections ***\r\n\r\n");
 
     // Main event loop
-    while (true)
+    while (webwait<5000)
     {
         thread_sleep_for(10);
         uint32_t now = rtos::Kernel::Clock::now().time_since_epoch().count() / 1000;
+
+        // ---------------
+            Paper=papersh;
+            Plastic=plasticsh;
+            Metal=metalsh;
+        // --------------
 
         // Read incoming data from ESP
         if (esp.readable()) {
@@ -78,5 +86,6 @@ int main()
         
         // Close inactive connections
         timeout_inactive_connections(now);
+        webwait+=1;
     }
 }
