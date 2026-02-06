@@ -1,5 +1,5 @@
 
-/*#undef __ARM_FP
+#undef __ARM_FP
 #include <cstdint>
 #include <string.h> 
 #include "mbed.h"
@@ -66,4 +66,3 @@ void EXTI15_10_IRQHandler()
     EXTI->PR = 0x0800; //clear interrupt pending flag
 }
 
-*/
